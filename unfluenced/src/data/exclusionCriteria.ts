@@ -46,6 +46,56 @@ export enum CausalLabel {
   CAUSAL_DISPUTED = 'CAUSAL_LINK_DISPUTED',
 }
 
+// ─── Evidence hierarchy (Type B causal claims) ───────────────────────────────
+//
+// Gold standard is Level 2: double-blind, placebo-controlled RCT.
+// Level 1 (meta-analysis of RCTs) is higher only because it aggregates
+// multiple independent Level 2 studies.
+// Anything below Level 3 cannot achieve VERIFIED status on its own.
+
+export enum EvidenceLevel {
+  /** Systematic review or meta-analysis of multiple independent RCTs */
+  L1_META_ANALYSIS = 1,
+  /** Double-blind, placebo-controlled randomized controlled trial (RCT) — gold standard */
+  L2_RCT = 2,
+  /** Cohort study (prospective or retrospective) */
+  L3_COHORT = 3,
+  /** Case-control study */
+  L4_CASE_CONTROL = 4,
+  /** Cross-sectional or observational study */
+  L5_OBSERVATIONAL = 5,
+  /** Expert opinion, case report, or anecdote */
+  L6_OPINION = 6,
+}
+
+export const EVIDENCE_LEVEL_LABEL: Record<EvidenceLevel, string> = {
+  [EvidenceLevel.L1_META_ANALYSIS]: 'Meta-analysis of RCTs',
+  [EvidenceLevel.L2_RCT]: 'Randomized Controlled Trial (double-blind)',
+  [EvidenceLevel.L3_COHORT]: 'Cohort Study',
+  [EvidenceLevel.L4_CASE_CONTROL]: 'Case-Control Study',
+  [EvidenceLevel.L5_OBSERVATIONAL]: 'Observational / Cross-sectional Study',
+  [EvidenceLevel.L6_OPINION]: 'Expert Opinion / Case Report',
+};
+
+/** Minimum evidence level that can achieve VERIFIED status */
+export const MIN_VERIFIED_EVIDENCE_LEVEL = EvidenceLevel.L2_RCT;
+
+/** Minimum evidence level admissible at all (SUPPORTED floor) */
+export const MIN_ADMISSIBLE_EVIDENCE_LEVEL = EvidenceLevel.L4_CASE_CONTROL;
+
+// ─── Replication status ───────────────────────────────────────────────────────
+
+export enum ReplicationStatus {
+  /** Independently replicated by a different team with no shared funding */
+  INDEPENDENTLY_REPLICATED = 'INDEPENDENTLY_REPLICATED',
+  /** Not yet replicated; original study only */
+  SINGLE_STUDY = 'SINGLE_STUDY',
+  /** Replication attempts produced conflicting results */
+  REPLICATION_FAILED = 'REPLICATION_FAILED',
+  /** Pre-registered study; replication status pending */
+  PRE_REGISTERED_PENDING = 'PRE_REGISTERED_PENDING',
+}
+
 // ─── Inaccuracy categories (INACCURATE claims only) ──────────────────────────
 
 export enum InaccuracyCategory {
@@ -115,8 +165,23 @@ export interface Fact {
 
   // Causal (Type B)
   causalLabel?: CausalLabel;
+  evidenceLevel?: EvidenceLevel;
+  replicationStatus?: ReplicationStatus;
+  /** Effect size value — required alongside p-value for causal claims */
+  effectSize?: number;
+  /** Unit of effect size — e.g. "Cohen's d", "odds ratio", "percentage points" */
+  effectSizeUnit?: string;
   confoundersControlled?: string[];
   confoundersNotControlled?: string[];
+
+  // Funding / conflict of interest (applies to all study-backed claims)
+  /** Who funded the study */
+  fundingSource?: string;
+  /**
+   * True if the funder has a direct financial interest in a positive result.
+   * Triggers automatic downgrade: SUPPORTED ceiling, never VERIFIED alone.
+   */
+  funderHasFinancialInterest?: boolean;
 
   // Quote (Type C)
   primaryRecordingUrl?: string;
@@ -284,14 +349,47 @@ export function validateFact(fact: Fact, sources: RegisteredSource[]): Validatio
     failures.push('Tax rate stat must specify type: effective or marginal.');
   }
 
-  // ── Causal claims require causalLabel ─────────────────────────────────────
-  if (fact.claimType === ClaimType.CAUSAL && !fact.causalLabel) {
-    failures.push('Causal claim must specify causalLabel (CORRELATION, CAUSAL_PEER_REVIEWED, or CAUSAL_DISPUTED).');
+  // ── Causal claims: label, evidence level, effect size, replication ───────
+  if (fact.claimType === ClaimType.CAUSAL) {
+    if (!fact.causalLabel) {
+      failures.push('Causal claim must specify causalLabel.');
+    }
+    if (fact.evidenceLevel === undefined) {
+      failures.push('Causal claim must specify evidenceLevel (1–6).');
+    } else if (fact.evidenceLevel > MIN_ADMISSIBLE_EVIDENCE_LEVEL) {
+      failures.push(
+        `Evidence level ${fact.evidenceLevel} (${EVIDENCE_LEVEL_LABEL[fact.evidenceLevel]}) is below ` +
+        `minimum admissible level ${MIN_ADMISSIBLE_EVIDENCE_LEVEL}. Expert opinion and case reports are not admissible.`
+      );
+    }
+    if (fact.pValue !== undefined && fact.effectSize === undefined) {
+      failures.push(
+        'Effect size is required alongside p-value. A statistically significant result with a trivially small ' +
+        'effect size is misleading. Specify effectSize and effectSizeUnit.'
+      );
+    }
+    if (fact.replicationStatus === undefined) {
+      warnings.push('Replication status not specified. Defaulting to SINGLE_STUDY.');
+    }
   }
 
   // ── Quote claims require primary recording ────────────────────────────────
   if (fact.claimType === ClaimType.QUOTE && !fact.primaryRecordingUrl) {
     failures.push('Quote claim must include primaryRecordingUrl (original video, audio, or transcript).');
+  }
+
+  // ── Funding bias: industry-sponsored studies capped at SUPPORTED ──────────
+  let industryFundingFlag = false;
+  if (fact.funderHasFinancialInterest === true) {
+    industryFundingFlag = true;
+    warnings.push(
+      `Funder "${fact.fundingSource ?? 'undisclosed'}" has a direct financial interest in this result. ` +
+      'Study is capped at SUPPORTED regardless of methodology. ' +
+      'Independent replication by a non-interested party is required for VERIFIED status.'
+    );
+  }
+  if (fact.fundingSource === undefined && fact.claimType === ClaimType.CAUSAL) {
+    warnings.push('Funding source not disclosed. Causal claims require funding disclosure.');
   }
 
   // ── Echo chamber check ────────────────────────────────────────────────────
@@ -301,15 +399,31 @@ export function validateFact(fact: Fact, sources: RegisteredSource[]): Validatio
 
   const hasAnyCorroboration = fact.corroboratingSourceIds.length > 0;
 
+  // ── Causal claims: single study caps at SUPPORTED; replication needed ─────
+  const isSingleUnreplicatedStudy =
+    fact.claimType === ClaimType.CAUSAL &&
+    (fact.replicationStatus === ReplicationStatus.SINGLE_STUDY ||
+      fact.replicationStatus === undefined);
+
+  const replicationFailed =
+    fact.claimType === ClaimType.CAUSAL &&
+    fact.replicationStatus === ReplicationStatus.REPLICATION_FAILED;
+
   // ── Determine trust level ─────────────────────────────────────────────────
   let trustLevel: TrustLevel;
 
   if (failures.length > 0) {
     trustLevel = TrustLevel.UNVERIFIABLE;
-  } else if (hasDiverseCorroboration && warnings.length === 0) {
+  } else if (replicationFailed) {
+    // Replication failure means the causal claim is actively disputed
+    trustLevel = TrustLevel.DISPUTED;
+  } else if (
+    hasDiverseCorroboration &&
+    warnings.length === 0 &&
+    !industryFundingFlag &&
+    !isSingleUnreplicatedStudy
+  ) {
     trustLevel = TrustLevel.VERIFIED;
-  } else if (hasAnyCorroboration || warnings.length > 0) {
-    trustLevel = TrustLevel.SUPPORTED;
   } else {
     trustLevel = TrustLevel.SUPPORTED;
   }
