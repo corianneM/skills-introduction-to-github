@@ -8,7 +8,7 @@
  * Effective rates only (not marginal). All dollar figures 2023-adjusted.
  */
 
-import type { Fact } from '../exclusionCriteria';
+import { ClaimType, type Fact } from '../exclusionCriteria';
 
 export const TOPIC_ID = 'taxes';
 export const TOPIC_LABEL = 'Taxes & Fiscal Accountability';
@@ -22,6 +22,7 @@ export const FACTS: Fact[] = [
   // ─── Concern A ─────────────────────────────────────────────────────────
 
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'tax-total-fed-spending-gdp',
     stat: 'Federal spending as share of GDP',
     unit: 'percent of GDP',
@@ -36,6 +37,7 @@ export const FACTS: Fact[] = [
     rateType: 'effective',
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'tax-national-debt',
     stat: 'Federal debt held by public as share of GDP',
     unit: 'percent of GDP',
@@ -49,6 +51,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'tax-top50-share',
     stat: 'Share of all federal income taxes paid by the top 50% of earners',
     unit: 'percent',
@@ -63,6 +66,7 @@ export const FACTS: Fact[] = [
     rateType: 'effective',
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'tax-regulatory-cost',
     stat: 'Estimated annual cost of federal regulation to US businesses',
     unit: 'dollars',
@@ -79,6 +83,7 @@ export const FACTS: Fact[] = [
   // ─── Concern B ─────────────────────────────────────────────────────────
 
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'tax-billionaire-effective-rate',
     stat: 'Estimated average effective federal tax rate paid by the 400 wealthiest Americans',
     unit: 'percent',
@@ -94,6 +99,7 @@ export const FACTS: Fact[] = [
     sampleSize: 400,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'tax-corporate-effective-rate',
     stat: 'Average effective federal corporate tax rate paid by S&P 500 companies after deductions',
     unit: 'percent',
@@ -108,6 +114,7 @@ export const FACTS: Fact[] = [
     rateType: 'effective',
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'tax-offshore-profit',
     stat: 'US corporate profits held in offshore accounts to defer US taxation',
     unit: 'dollars',
@@ -121,6 +128,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'tax-irs-audit-gap',
     stat: 'Estimated annual federal tax gap (taxes owed but not collected)',
     unit: 'dollars',

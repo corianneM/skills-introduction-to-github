@@ -6,7 +6,7 @@
  *   Concern B — "Wealth concentration undermines competition and social mobility"
  */
 
-import type { Fact } from '../exclusionCriteria';
+import { ClaimType, type Fact } from '../exclusionCriteria';
 
 export const TOPIC_ID = 'wealth-inequality';
 export const TOPIC_LABEL = 'Wealth & Income Inequality';
@@ -18,6 +18,7 @@ export const CONCERN_B_HEADER = 'Has wealth concentration reached a point that d
 
 export const FACTS: Fact[] = [
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'wi-top1-wealth-share',
     stat: 'Share of total US wealth held by the top 1%',
     unit: 'percent',
@@ -31,6 +32,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'wi-bottom50-wealth',
     stat: 'Share of total US wealth held by the bottom 50%',
     unit: 'percent',
@@ -44,6 +46,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'wi-gini-trend',
     stat: 'US Gini coefficient (income inequality measure, 0=equal, 1=one person has all)',
     unit: 'index',
@@ -57,6 +60,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'wi-intergenerational-mobility',
     stat: 'Probability that a child born in the bottom income quintile reaches the top quintile as an adult',
     unit: 'percent',
@@ -72,6 +76,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'wi-productivity-pay-gap',
     stat: 'Cumulative US productivity growth vs. median worker pay growth, 1979–2022',
     unit: 'percent',
@@ -85,6 +90,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: true,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'wi-billionaire-growth-covid',
     stat: 'Change in collective net worth of US billionaires during COVID-19 pandemic (March 2020–Oct 2021)',
     unit: 'dollars',
@@ -98,6 +104,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'wi-small-biz-share-decline',
     stat: 'Change in small business share of total US employment, 1990–2022',
     unit: 'percent',

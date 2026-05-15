@@ -8,7 +8,7 @@
  * Facts only. No narrative. Context notes prevent decontextualized misuse.
  */
 
-import type { Fact } from '../exclusionCriteria';
+import { ClaimType, CausalLabel, type Fact } from '../exclusionCriteria';
 
 export const TOPIC_ID = 'immigration';
 export const TOPIC_LABEL = 'Immigration & Economy';
@@ -22,6 +22,7 @@ export const FACTS: Fact[] = [
   // ─── Concern A facts ─────────────────────────────────────────────────────
 
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'imm-fiscal-cost-low-skill',
     stat: 'Estimated net fiscal cost of a household headed by an immigrant without a high school diploma over a lifetime',
     unit: 'dollars (2013)',
@@ -35,6 +36,9 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.CAUSAL,
+    causalLabel: CausalLabel.CAUSAL_PEER_REVIEWED,
+    confoundersControlled: ['education level', 'occupation category', 'metro area'],
     id: 'imm-wage-depression-low-skill',
     stat: 'Estimated wage effect of immigration on prior immigrant workers in the same low-skill occupations (short-run)',
     unit: 'percent',
@@ -50,6 +54,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'imm-undocumented-est',
     stat: 'Estimated undocumented immigrant population in the US',
     unit: 'people',
@@ -65,6 +70,7 @@ export const FACTS: Fact[] = [
   // ─── Concern B facts ─────────────────────────────────────────────────────
 
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'imm-tax-contributions',
     stat: 'Estimated annual tax contributions (federal, state, local) by undocumented immigrants',
     unit: 'dollars',
@@ -78,6 +84,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'imm-agriculture-share',
     stat: 'Share of US crop farmworkers who are foreign-born (including undocumented)',
     unit: 'percent',
@@ -92,6 +99,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'imm-second-gen-upward',
     stat: 'Median household income of second-generation immigrants relative to all US households',
     unit: 'percent above median',
@@ -106,6 +114,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'imm-entrepreneurship',
     stat: 'Share of Fortune 500 companies founded by immigrants or their children',
     unit: 'percent',
@@ -121,6 +130,7 @@ export const FACTS: Fact[] = [
   // ─── Shared context ───────────────────────────────────────────────────────
 
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'imm-crime-rate',
     stat: 'Incarceration rate of native-born vs. foreign-born males aged 18–39',
     unit: 'per 100,000',

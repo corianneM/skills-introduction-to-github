@@ -9,7 +9,7 @@
  * Dollar figures are CPI-adjusted to 2023 dollars unless noted.
  */
 
-import type { Fact } from '../exclusionCriteria';
+import { ClaimType, type Fact } from '../exclusionCriteria';
 
 export const TOPIC_ID = 'employment';
 export const TOPIC_LABEL = 'Employment & Benefits';
@@ -23,6 +23,7 @@ export const FACTS: Fact[] = [
   // ─── Concern A facts ─────────────────────────────────────────────────────
 
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'emp-lfpr-prime-age',
     stat: 'Prime-age labor force participation rate (ages 25–54)',
     unit: 'percent',
@@ -36,6 +37,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'emp-snap-work-requirements',
     stat: 'Share of able-bodied adults without dependents (ABAWDs) who lost SNAP when work requirements enforced',
     unit: 'percent',
@@ -50,6 +52,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'emp-median-snap-duration',
     stat: 'Median duration of a SNAP spell (continuous enrollment)',
     unit: 'months',
@@ -62,6 +65,7 @@ export const FACTS: Fact[] = [
       'Most SNAP recipients use the program short-term during hardship. Roughly 20% are long-term recipients (3+ years) — a smaller share than common perception suggests.',
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'emp-disability-rolls',
     stat: 'SSDI (Social Security Disability Insurance) enrollment as share of working-age adults',
     unit: 'percent',
@@ -77,6 +81,7 @@ export const FACTS: Fact[] = [
   // ─── Concern B facts ─────────────────────────────────────────────────────
 
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'emp-living-wage-gap',
     stat: 'Gap between federal minimum wage ($7.25) and MIT living wage for a single adult (national median)',
     unit: 'dollars per hour',
@@ -90,6 +95,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: true,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'emp-real-wage-stagnation',
     stat: 'Change in real (inflation-adjusted) median weekly earnings for full-time workers, 1979–2023',
     unit: 'percent',
@@ -103,6 +109,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: true,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'emp-u6-underemployment',
     stat: 'U-6 underemployment rate (includes part-time workers who want full-time, and discouraged workers)',
     unit: 'percent',
@@ -117,6 +124,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'emp-gig-no-benefits',
     stat: 'Share of workers in alternative work arrangements (gig, contract, temp) with no employer-provided health insurance',
     unit: 'percent',
@@ -134,6 +142,7 @@ export const FACTS: Fact[] = [
   // ─── Shared / contextual ─────────────────────────────────────────────────
 
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'emp-working-poor',
     stat: 'Number of US workers in poverty despite working full-time year-round',
     unit: 'people',
@@ -147,6 +156,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'emp-manufacturing-job-loss',
     stat: 'Net manufacturing jobs lost in the US, 2000–2010',
     unit: 'jobs',

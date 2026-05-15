@@ -6,7 +6,7 @@
  *   Concern B — "The market fails to provide affordable access to basic care"
  */
 
-import type { Fact } from '../exclusionCriteria';
+import { ClaimType, type Fact } from '../exclusionCriteria';
 
 export const TOPIC_ID = 'healthcare';
 export const TOPIC_LABEL = 'Healthcare Costs & Access';
@@ -20,6 +20,7 @@ export const FACTS: Fact[] = [
   // ─── Concern A ─────────────────────────────────────────────────────────
 
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'hc-admin-cost-private',
     stat: 'Administrative costs as share of total spending in US private insurance',
     unit: 'percent',
@@ -33,6 +34,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'hc-medicaid-fraud',
     stat: 'Estimated improper Medicaid payment rate',
     unit: 'percent',
@@ -49,6 +51,7 @@ export const FACTS: Fact[] = [
   // ─── Concern B ─────────────────────────────────────────────────────────
 
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'hc-per-capita-spend',
     stat: 'US per capita healthcare spending vs. peer nation average',
     unit: 'dollars',
@@ -62,6 +65,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'hc-medical-bankruptcy',
     stat: 'Share of US personal bankruptcies with medical debt as a contributing factor',
     unit: 'percent',
@@ -77,6 +81,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'hc-uninsured-rate',
     stat: 'Share of Americans under 65 who are uninsured',
     unit: 'percent',
@@ -90,6 +95,7 @@ export const FACTS: Fact[] = [
     adjustedForInflation: false,
   },
   {
+    claimType: ClaimType.STATISTICAL,
     id: 'hc-insulin-cost',
     stat: 'Average US out-of-pocket cost for a month of insulin vs. Canada',
     unit: 'dollars',
