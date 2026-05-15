@@ -5,7 +5,7 @@
  * The type determines which rules govern it.
  *
  * Trust levels (what users see):
- *   VERIFIED     — primary source + ideologically independent corroboration + full context
+ *   ESTABLISHED  — primary source + ideologically independent corroboration + full context
  *   SUPPORTED    — strong primary source; corroboration from one ideological direction only
  *   DISPUTED     — credible sources on both sides disagree; both shown
  *   INACCURATE   — wrong, exaggerated, or misleading; shown with correction + how it spread
@@ -28,7 +28,7 @@ export enum ClaimType {
 // ─── Trust levels ─────────────────────────────────────────────────────────────
 
 export enum TrustLevel {
-  VERIFIED = 'VERIFIED',
+  ESTABLISHED = 'ESTABLISHED',
   SUPPORTED = 'SUPPORTED',
   DISPUTED = 'DISPUTED',
   INACCURATE = 'INACCURATE',
@@ -77,8 +77,8 @@ export const EVIDENCE_LEVEL_LABEL: Record<EvidenceLevel, string> = {
   [EvidenceLevel.L6_OPINION]: 'Expert Opinion / Case Report',
 };
 
-/** Minimum evidence level that can achieve VERIFIED status */
-export const MIN_VERIFIED_EVIDENCE_LEVEL = EvidenceLevel.L2_RCT;
+/** Minimum evidence level that can achieve ESTABLISHED status */
+export const MIN_ESTABLISHED_EVIDENCE_LEVEL = EvidenceLevel.L2_RCT;
 
 /** Minimum evidence level admissible at all (SUPPORTED floor) */
 export const MIN_ADMISSIBLE_EVIDENCE_LEVEL = EvidenceLevel.L4_CASE_CONTROL;
@@ -213,7 +213,20 @@ export interface InaccurateClaim {
 
 // ─── Thresholds ───────────────────────────────────────────────────────────────
 
-export const MIN_SAMPLE_SIZE = 1000;
+/**
+ * Hard floor — below this, the claim is excluded entirely.
+ * Not labeled. Not linked. Does not exist in Unfluenced.
+ * No exceptions.
+ */
+export const MIN_SAMPLE_SIZE_HARD_FLOOR = 100;
+
+/**
+ * Standard minimum for ESTABLISHED/SUPPORTED status.
+ * Below this but above the hard floor → claim is EMERGING at best,
+ * with a visible "small sample" warning.
+ */
+export const MIN_SAMPLE_SIZE_STANDARD = 1000;
+
 export const MAX_DATA_AGE_YEARS = 5;
 export const SIGNIFICANCE_THRESHOLD = 0.05;
 
@@ -308,9 +321,19 @@ export function validateFact(fact: Fact, sources: RegisteredSource[]): Validatio
     );
   }
 
-  // ── Sample size ───────────────────────────────────────────────────────────
-  if (fact.sampleSize !== undefined && fact.sampleSize < MIN_SAMPLE_SIZE) {
-    failures.push(`Sample size ${fact.sampleSize} is below minimum ${MIN_SAMPLE_SIZE}.`);
+  // ── Sample size — hard floor is a hard failure; no exceptions ────────────
+  if (fact.sampleSize !== undefined) {
+    if (fact.sampleSize < MIN_SAMPLE_SIZE_HARD_FLOOR) {
+      failures.push(
+        `Sample size n=${fact.sampleSize} is below the hard floor of ${MIN_SAMPLE_SIZE_HARD_FLOOR}. ` +
+        `This claim is excluded entirely — not labeled, not linked.`
+      );
+    } else if (fact.sampleSize < MIN_SAMPLE_SIZE_STANDARD) {
+      warnings.push(
+        `Small sample: n=${fact.sampleSize} (standard minimum is ${MIN_SAMPLE_SIZE_STANDARD}). ` +
+        `Claim is capped at EMERGING. Visible "small sample" label required.`
+      );
+    }
   }
 
   // ── Statistical significance ──────────────────────────────────────────────
@@ -385,7 +408,7 @@ export function validateFact(fact: Fact, sources: RegisteredSource[]): Validatio
     warnings.push(
       `Funder "${fact.fundingSource ?? 'undisclosed'}" has a direct financial interest in this result. ` +
       'Study is capped at SUPPORTED regardless of methodology. ' +
-      'Independent replication by a non-interested party is required for VERIFIED status.'
+      'Independent replication by a non-interested party is required for ESTABLISHED status.'
     );
   }
   if (fact.fundingSource === undefined && fact.claimType === ClaimType.CAUSAL) {
@@ -423,7 +446,7 @@ export function validateFact(fact: Fact, sources: RegisteredSource[]): Validatio
     !industryFundingFlag &&
     !isSingleUnreplicatedStudy
   ) {
-    trustLevel = TrustLevel.VERIFIED;
+    trustLevel = TrustLevel.ESTABLISHED;
   } else {
     trustLevel = TrustLevel.SUPPORTED;
   }

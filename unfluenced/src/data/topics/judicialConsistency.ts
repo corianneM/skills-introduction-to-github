@@ -34,7 +34,7 @@ export const CONCERN_B_HEADER =
 // 'pew'         — Pew Research Center (non-partisan, CENTER)
 //
 // Note: 'scotus', 'cspan', and 'senate-jud' must be added to sources.ts
-// as GOVERNMENT tier sources before facts here reach VERIFIED status.
+// as GOVERNMENT tier sources before facts here reach ESTABLISHED status.
 
 export const FACTS: Fact[] = [
 

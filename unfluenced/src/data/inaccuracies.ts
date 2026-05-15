@@ -8,7 +8,7 @@
  *
  * Rules for adding an entry:
  *   - originalClaim must be the exact claim as made (no paraphrase)
- *   - correctionFactId must reference a VERIFIED fact in the topic modules
+ *   - correctionFactId must reference an ESTABLISHED fact in the topic modules
  *   - howItSpread entries must cite documented amplification, not assertion
  */
 
